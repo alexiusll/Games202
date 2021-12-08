@@ -5,7 +5,7 @@
 
 ## 作业0
 
-![00](../../../../Users/new/Desktop/00.png)
+![00](README/00.png)
 
 
 

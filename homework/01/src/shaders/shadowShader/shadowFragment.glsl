@@ -31,5 +31,7 @@ void main(){
    // gl_FragCoord:片元的坐标
 
   //gl_FragColor = vec4( 1.0, 0.0, 0.0, gl_FragCoord.z);
-  gl_FragColor = pack(gl_FragCoord.z);
+  // gl_FragColor = pack(gl_FragCoord.z);
+
+  gl_FragColor = gl_FragCoord;
 }

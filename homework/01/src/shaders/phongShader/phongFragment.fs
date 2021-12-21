@@ -120,9 +120,9 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord) {
   float bias = Bias();
   vec4 depthpack = texture2D(shadowMap, shadowCoord.xy);
   float depthUnpack = unpack(depthpack);
-
+  // float depthUnpack = depthpack.x;
   // 检查当前片段是否在阴影中
-  if (depthUnpack > shadowCoord.z - bias) {
+  if (depthUnpack >= shadowCoord.z - bias) {
     // 不在阴影中，返回 1.0
     return 1.0;
   }
@@ -153,12 +153,21 @@ vec3 blinnPhong() {
   return phongColor;
 }
 
+// https://learnopengl-cn.github.io/04%20Advanced%20OpenGL/01%20Depth%20testing/
+float near = 0.1; 
+float far  = 100.0; 
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));    
+}
+
 void main(void) {
 
   float visibility;
-  // perform perspective divide 执行透视划分
+  // perform perspective divide 执行透视划分，这里不是很理解
   vec3 projCoords = vPositionFromLight.xyz / vPositionFromLight.w;
-  // transform to [0,1] range 变换到[0,1]的范围
+  // [-1,1] = > [0,1]
   vec3 shadowCoord = projCoords * 0.5 + 0.5;
 
   visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
@@ -167,9 +176,10 @@ void main(void) {
 
   vec3 phongColor = blinnPhong();
 
-  // gl_FragColor = vec4(phongColor * visibility, 1.0);
-  gl_FragColor = vec4(phongColor, 1.0);
+  gl_FragColor = vec4(phongColor * visibility, 1.0);
+  // gl_FragColor = vec4(phongColor, 1.0);
 
   // 可视化深度
-  // gl_FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+  // float depth = LinearizeDepth(gl_FragCoord.z) / far; // 为了演示除以 far
+  // gl_FragColor = vec4(vec3(depth), 1.0);
 }

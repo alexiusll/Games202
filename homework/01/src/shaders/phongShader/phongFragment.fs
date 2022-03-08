@@ -52,9 +52,9 @@ float unpack(vec4 rgbaDepth) {
 
   float depth = dot(rgbaDepth, bitShift);
   // shadow map 没有深度值的地方默认是0 导致的有噪点
-  if (abs(depth) < EPS) {
-    depth = 1.0;
-  }
+  // if (abs(depth) < EPS) {
+  //   depth = 1.0;
+  // }
   return depth;
   // return dot(rgbaDepth, bitShift);
 }
@@ -254,8 +254,8 @@ void main(void) {
 
   float visibility;
   // visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
-  // visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
-  visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
+  visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
+  // visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
   vec3 phongColor = blinnPhong();
   gl_FragColor = vec4(phongColor * visibility, 1.0);

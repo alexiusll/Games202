@@ -211,7 +211,7 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord) {
     return 1.0;
   }
   // 否则在阴影中，返回 0.5
-  return 0.5;
+  return 0.0;
 }
 
 vec3 blinnPhong() {
@@ -233,7 +233,7 @@ vec3 blinnPhong() {
   vec3 specular = uKs * light_atten_coff * spec;
 
   vec3 radiance = (ambient + diffuse + specular);
-  vec3 phongColor = pow(radiance, vec3(1.0 / 2.2));
+  vec3 phongColor = pow(radiance, vec3(1.0 / 2.2)); // gamma 修正
   return phongColor;
 }
 
@@ -252,9 +252,9 @@ void main(void) {
   // [-1,1] = > [0,1]
   vec3 shadowCoord = projCoords * 0.5 + 0.5;
 
-  float visibility;
+  float visibility = 1.0;
   // visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
-  visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
+  // visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   // visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
   vec3 phongColor = blinnPhong();

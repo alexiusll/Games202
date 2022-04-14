@@ -1,8 +1,15 @@
+/*
+ * @Author: linkenzone
+ * @Date: 2022-04-14 21:52:25
+ * @Descripttion: Do not edit
+ */
 class Texture {
     constructor() {}
     CreateImageTexture(gl, image) {
         this.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        console.log("image",image);
 
         // Because images have to be download over the internet
         // they might take a moment until they are ready.

@@ -52,9 +52,9 @@ float unpack(vec4 rgbaDepth) {
 
   float depth = dot(rgbaDepth, bitShift);
   // shadow map 没有深度值的地方默认是0 导致的有噪点
-  // if (abs(depth) < EPS) {
-  //   depth = 1.0;
-  // }
+  if (abs(depth) < EPS) {
+    depth = 1.0;
+  }
   return depth;
   // return dot(rgbaDepth, bitShift);
 }
@@ -109,7 +109,7 @@ float Bias() {
   // vec3 lightDir = normalize(uLightPos);
   vec3 lightDir = normalize(uLightPos);
   vec3 normal = normalize(vNormal);
-  float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.005);
+  float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
   return bias;
 }
 
@@ -197,7 +197,7 @@ float PCSS(sampler2D shadowMap, vec4 coords) {
   float penumbraScale = (coords.z - zBlocker) / zBlocker;
 
   // STEP 3: filtering  过滤
-  return PCF_Internal(shadowMap, coords.xy, coords.z, penumbraScale * 10.0);
+  return PCF_Internal(shadowMap, coords.xy, coords.z, penumbraScale * 5.0);
 }
 
 float useShadowMap(sampler2D shadowMap, vec4 shadowCoord) {
@@ -206,12 +206,12 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord) {
   float depthUnpack = unpack(depthpack);
   // float depthUnpack = depthpack.x;
   // 检查当前片段是否在阴影中
-  if (depthUnpack >= shadowCoord.z - bias) {
+  if (depthUnpack >= shadowCoord.z - bias ) {
     // 不在阴影中，返回 1.0
     return 1.0;
   }
   // 否则在阴影中，返回 0.5
-  return 0.0;
+  return 0.5;
 }
 
 vec3 blinnPhong() {
@@ -219,10 +219,11 @@ vec3 blinnPhong() {
   color = pow(color, vec3(2.2));
 
   vec3 ambient = 0.05 * color;
-
+  // 可以理解为一个 会衰减的平行光源！
   vec3 lightDir = normalize(uLightPos);
   vec3 normal = normalize(vNormal);
   float diff = max(dot(lightDir, normal), 0.0);
+  // 衰减
   vec3 light_atten_coff =
       uLightIntensity / pow(length(uLightPos - vFragPos), 2.0);
   vec3 diffuse = diff * light_atten_coff * color;
@@ -255,7 +256,7 @@ void main(void) {
   float visibility = 1.0;
   // visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
   // visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
-  // visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
+  visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
   vec3 phongColor = blinnPhong();
   gl_FragColor = vec4(phongColor * visibility, 1.0);
